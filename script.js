@@ -1,6 +1,7 @@
 const firePixelsArray = [];
-const fireWidth = 40;
-const fireHeight = 40;
+const pixelSize = 4;
+const fireWidth = 120;
+const fireHeight = 60;
 const fireColorsPalette = [
   '7,7,7',
   '31,7,7',
@@ -40,11 +41,16 @@ const fireColorsPalette = [
   '239,239,199',
   '255,255,255',
 ];
+
+const canvas = document.querySelector('#fireCanvas');
+const context = canvas.getContext('2d');
+
 let rendering = true;
 
 function start() {
   createFireDataStruture();
   createFireSource();
+  initCanvas();
   renderFire();
   initControls();
 
@@ -96,36 +102,25 @@ function updateFireIntensityPerPixel(currentPixelIndex) {
   firePixelsArray[currentPixelIndex - decay] = newFireIntensity;
 }
 
-function renderFire() {
-  const debug = false;
+function initCanvas() {
+  canvas.setAttribute('width', `${pixelSize * fireWidth}px`);
+  canvas.setAttribute('height', `${pixelSize * fireHeight}px`);
+}
 
-  let html = '<table cellpadding=0 cellspacing=0>';
+function renderFire() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
 
   for (let row = 0; row < fireHeight; row++) {
-    html += '<tr>';
-
     for (let column = 0; column < fireWidth; column++) {
       const pixelIndex = column + fireWidth * row;
       const fireIntensity = firePixelsArray[pixelIndex];
 
-      if (debug === true) {
-        html += '<td>';
-        html += `<div class="pixel-index">${pixelIndex}</div>`;
-        html += fireIntensity;
-        html += '</td>';
-      } else {
-        const color = fireColorsPalette[fireIntensity];
-        html += `<td class="pixel" style="background-color: rgb(${color})">`;
-        html += '</td>';
-      }
+      const color = fireColorsPalette[fireIntensity];
+
+      context.fillStyle = `rgb(${color})`;
+      context.fillRect(column * pixelSize, row * pixelSize, pixelSize, pixelSize);
     }
-
-    html += '</tr>';
   }
-
-  html += '</table>';
-
-  document.querySelector('#fireCanvas').innerHTML = html;
 }
 
 function createFireSource() {
